@@ -190,6 +190,33 @@ $(document).ready(function() {
 	 */
 	function InitHTML5($inputfield) {
 
+		var uploadQueue = [],
+			activeUploads = 0;
+
+		function queueRequest(item) {
+			uploadQueue.push(item);
+			//console.log((new Date).toISOString() + ": Queueing upload for " + item.file.name);
+			checkQueue();
+		}
+
+		function checkQueue() {
+			if(uploadQueue.length && activeUploads < ProcessWire.config.InputfieldFile.maxParallelUploads) {
+				var item = uploadQueue.shift();
+				if(!item) {
+					return;
+				}
+				activeUploads++;
+				//console.log((new Date).toISOString() + ": Running upload for " + item.file.name + " from queue");
+				item.xhr.send(item.file);
+			}
+		}
+
+		function queueItemFinished() {
+			activeUploads--;
+			//console.log((new Date).toISOString() + ": Finished uploading, processing next");
+			checkQueue();
+		}
+
 		if($inputfield.length > 0) {
 			var $target = $inputfield.find(".InputfieldFileUpload"); // just one
 		} else {
@@ -282,6 +309,8 @@ $(document).ready(function() {
 					var response = $.parseJSON(xhr.responseText); 
 					if(response.error !== undefined) response = [response];
 					
+					queueItemFinished();
+
 					// note the following loop will always contain only 1 item, unless a file containing more files (ZIP file) was uploaded
 					for(var n = 0; n < response.length; n++) {
 
@@ -373,7 +402,8 @@ $(document).ready(function() {
 				xhr.setRequestHeader("Content-Type", "application/octet-stream"); // fix issue 96-Pete
 				xhr.setRequestHeader("X-" + postTokenName, postTokenValue);
 				xhr.setRequestHeader("X-REQUESTED-WITH", 'XMLHttpRequest');
-				xhr.send(file);
+				//xhr.send(file);
+				queueRequest({xhr: xhr, file: file});
 				
 				// Present file info and append it to the list of files
 				fileData = '' + 

@@ -155,7 +155,8 @@ class InputfieldFile extends Inputfield implements InputfieldItemList, Inputfiel
 		$this->set('noCollapseItem', 0);
 		$this->set('noShortName', 0);
 		$this->set('noCustomButton', false);
-		$this->attr('type', 'file'); 
+		$this->attr('type', 'file');
+		$this->set('maxParallelUploads', '5');
 		
 		$this->labels = array(
 			'description' => $this->_('Description'), 
@@ -706,6 +707,9 @@ class InputfieldFile extends Inputfield implements InputfieldItemList, Inputfiel
 			$data['labels']['too-big'] = $this->_('File is too big - maximum allowed size is MAX_KB kb');
 			$config->js('InputfieldFile', $data); 
 		}
+		
+		$data["maxParallelUploads"] = $this->maxParallelUploads;
+		$config->js('InputfieldFile', $data);
 		
 		$this->getItemInputfields(); // custom fields ready
 		
