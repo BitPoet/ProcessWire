@@ -79,7 +79,7 @@ class InputfieldFileConfiguration extends Wire {
 		/** @var InputfieldText $f */
 		$f = $this->modules->get("InputfieldText");
 		$f->attr('name', 'maxParallelUploads');
-		$f->attr('value', 5);
+		$f->attr('value', (int) $field->get('maxParallelUploads'));
 		$f->label = $this->_("Maximum number of concurrent uploads");
 		$f->description = $this->_("Specify how many parallel uploads can be happen at once. If more files are added in one go, they will be processed as soon as the first files have finished uploading.");
 		$f->showIf = "outputFormat=" . FieldtypeFile::outputFormatAuto. "|" . FieldtypeFile::outputFormatArray;
